@@ -3,8 +3,8 @@ import ParallaxBackground, { ParallaxLayerType } from "../common/parallax/parall
 import SectionHeading from "../common/section-heading";
 import { styled } from "styled-components";
 import frankyImg from '../../assets/images/franky.jpg'
-import amelieImg from '../../assets/images/franky.jpg'
-import tristanImg from '../../assets/images/franky.jpg'
+import amelieImg from '../../assets/images/amelie.jpg'
+import tristanImg from '../../assets/images/tristan.jpg'
 
 // Team Section
 const TeamSection = styled.section`

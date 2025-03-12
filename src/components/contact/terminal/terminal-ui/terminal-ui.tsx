@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, KeyboardEvent, FormEvent } from 'react';
-import styled, { keyframes } from 'styled-components';
-import { blink } from '../../styles/animation';
+import styled from 'styled-components';
+import emailjs from '@emailjs/browser';
 
 // Types
 interface HistoryItem {
@@ -10,9 +10,10 @@ interface HistoryItem {
 }
 
 interface FormData {
-  name: string;
-  email: string;
+  from_name: string;
+  reply_to: string;
   message: string;
+  to_name: string;
 }
 
 // Styled Components
@@ -164,17 +165,18 @@ const TerminalInput = styled.input`
   }
 `;
 
-
 // Terminal Component
 const Terminal: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [currentCommand, setCurrentCommand] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [counter, setCounter] = useState(0);
   const [formData, setFormData] = useState<FormData>({
-    name: '',
-    email: '',
+    from_name: '',
+    reply_to: '',
     message: '',
+    to_name: 'Orbit-Ops Team',
   });
   const [formStep, setFormStep] = useState(-1); // -1 means not in form mode
   const [currentPrompt, setCurrentPrompt] = useState('');
@@ -186,16 +188,32 @@ const Terminal: React.FC = () => {
   // Form steps definition
   const formSteps = [
     {
-      prompt: 'Please enter your name:',
-      field: 'name',
+      prompt: 'Please enter your full name:',
+      field: 'from_name',
+      validate: (value: string) => {
+        if (!value.trim()) return 'Name is required';
+        if (value.trim().length < 2) return 'Name must be at least 2 characters';
+        return '';
+      }
     },
     {
       prompt: 'Please enter your email:',
-      field: 'email',
+      field: 'reply_to',
+      validate: (value: string) => {
+        if (!value.trim()) return 'Email is required';
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) return 'Please enter a valid email address';
+        return '';
+      }
     },
     {
       prompt: 'Please enter your message:',
       field: 'message',
+      validate: (value: string) => {
+        if (!value.trim()) return 'Message is required';
+        if (value.trim().length < 10) return 'Message must be at least 10 characters';
+        return '';
+      }
     },
   ];
 
@@ -223,6 +241,78 @@ const Terminal: React.FC = () => {
     setIsTyping(false);
   };
 
+  // Validate the current form step
+  const validateCurrentStep = (value: string): string => {
+    if (formStep >= 0 && formStep < formSteps.length) {
+      return formSteps[formStep].validate(value);
+    }
+    return '';
+  };
+
+  // Submit the form to EmailJs
+  const submitForm = async () => {
+    try {
+      setIsSubmitting(true);
+      await addResponse('Submitting your message...');
+      
+      // Create a form element to use the traditional send method
+      const form = document.createElement('form');
+      const formDataObj = {
+        service_id: 'service_iw848xp',
+        template_id: 'template_v3hsrmb',
+        user_id: 'pXucDMz_J7yTIFddz',
+        template_params: {
+          from_name: formData.from_name,
+          reply_to: formData.reply_to,
+          message: formData.message,
+          to_name: formData.to_name
+        }
+      };
+      
+      console.log('Attempting to send email with data:', formDataObj);
+      
+      // Use the alternative method with fetch directly to the EmailJS API
+      const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formDataObj)
+      });
+      
+      if (response.status === 200) {
+        console.log('Email sent successfully');
+        await addResponse('✓ Message sent successfully! We\'ll get back to you soon.');
+      } else {
+        const errorText = await response.text();
+        console.error('Error sending email:', response.status, errorText);
+        
+        if (response.status === 412 && errorText.includes('Gmail_API')) {
+          await addResponse('⚠ There appears to be an issue with our email service.');
+          await addResponse('Your message has been saved. We\'ll process it manually.');
+          // Here you could implement a fallback like saving to localStorage or a database
+        } else {
+          await addResponse('⚠ Failed to send message. Please try again later or contact us directly at orbitopsdev@gmail.com');
+        }
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      await addResponse('⚠ Failed to send message. Please try again later or contact us directly at orbitopsdev@gmail.com');
+    } finally {
+      setIsSubmitting(false);
+      await addResponse('Type "clear" to reset or "help" for more commands.');
+      
+      // Reset form mode
+      setFormStep(-1);
+      setFormData({
+        from_name: '',
+        reply_to: '',
+        message: '',
+        to_name: 'Orbit-Ops Team',
+      });
+    }
+  };
+
   // Process the entered command
   const processCommand = async (command: string) => {
     if (!command.trim()) return;
@@ -235,6 +325,17 @@ const Terminal: React.FC = () => {
     
     // Form submission mode
     if (formStep >= 0 && formStep < formSteps.length) {
+      // Validate the input
+      const error = validateCurrentStep(command);
+      
+      if (error) {
+        // Show validation error
+        await addResponse(`⚠ ${error}`);
+        await addResponse(formSteps[formStep].prompt);
+        setCurrentCommand('');
+        return;
+      }
+      
       // Store the input in the appropriate form field
       setFormData(prev => ({
         ...prev,
@@ -242,21 +343,36 @@ const Terminal: React.FC = () => {
       }));
       
       // Move to the next form step
-      setFormStep(prev => prev + 1);
+      const nextStep = formStep + 1;
+      setFormStep(nextStep);
       
-      if (formStep === formSteps.length - 1) {
-        // Form is complete, submit it
-        console.log('Form submitted:', { ...formData, [formSteps[formStep].field]: command });
+      if (nextStep === formSteps.length) {
+        // Form is complete, show summary and confirm
+        await addResponse('Here\'s what we\'ve got:');
+        await addResponse(`Name: ${formData.from_name}`);
+        await addResponse(`Email: ${formData.reply_to}`);
+        await addResponse(`Message: ${command}`);
+        await addResponse('');
+        await addResponse('Does this look correct? Type "yes" to send or "no" to restart.');
         
-        // Display completion message
-        await addResponse('Thank you for your message! We will get back to you soon.');
-        await addResponse('Type "clear" to start a new message or "help" for more commands.');
-        
-        // Reset form mode
-        setFormStep(-1);
+        // Update the last field (message)
+        setFormData(prev => ({
+          ...prev,
+          message: command,
+        }));
       } else {
         // Display the next prompt
-        setCurrentPrompt(formSteps[formStep + 1].prompt);
+        setCurrentPrompt(formSteps[nextStep].prompt);
+      }
+    } else if (formStep === formSteps.length) {
+      // Confirmation step
+      if (command.toLowerCase() === 'yes') {
+        await submitForm();
+      } else if (command.toLowerCase() === 'no') {
+        await addResponse('Form cancelled. Type "contact" to start again.');
+        setFormStep(-1);
+      } else {
+        await addResponse('Please type "yes" to send or "no" to restart.');
       }
     } else {
       // Command mode
@@ -272,6 +388,12 @@ const Terminal: React.FC = () => {
         case 'contact':
           await addResponse('Starting contact form...');
           setFormStep(0);
+          setFormData({
+            from_name: '',
+            reply_to: '',
+            message: '',
+            to_name: 'Orbit-Ops Team',
+          });
           setCurrentPrompt(formSteps[0].prompt);
           break;
           
@@ -304,7 +426,7 @@ const Terminal: React.FC = () => {
   // Handle form submission
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!isTyping && currentCommand.trim()) {
+    if (!isTyping && !isSubmitting && currentCommand.trim()) {
       processCommand(currentCommand);
     }
   };
@@ -322,6 +444,8 @@ const Terminal: React.FC = () => {
     };
     
     initializeTerminal();
+    
+    // No need to initialize EmailJS when using the fetch method directly
   }, []);
 
   // Auto-scroll to bottom when history changes
@@ -333,10 +457,10 @@ const Terminal: React.FC = () => {
 
   // Auto-focus input when necessary
   useEffect(() => {
-    if (!isTyping && inputRef.current) {
+    if (!isTyping && !isSubmitting && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isTyping]);
+  }, [isTyping, isSubmitting]);
 
   // Handle keyboard shortcuts
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -364,12 +488,14 @@ const Terminal: React.FC = () => {
         <TerminalTitle>orbit-ops@terminal ~ $</TerminalTitle>
         <StatusBar>
           <StatusDot />
-          <StatusText>{isTyping ? 'Processing...' : 'Ready'}</StatusText>
+          <StatusText>
+            {isSubmitting ? 'Sending...' : isTyping ? 'Processing...' : 'Ready'}
+          </StatusText>
         </StatusBar>
       </TerminalHeader>
       
       <TerminalBody ref={terminalBodyRef}>
-        {history.map((item, index) => (
+        {history.map((item) => (
           item.type === 'command' ? (
             <CommandLine key={item.id}>
               <span className="prompt">{'>'}</span>
@@ -382,7 +508,7 @@ const Terminal: React.FC = () => {
           )
         ))}
         
-        {formStep >= 0 && !isTyping && (
+        {formStep >= 0 && !isTyping && !isSubmitting && (
           <ResponseLine>{currentPrompt}</ResponseLine>
         )}
         
@@ -395,8 +521,8 @@ const Terminal: React.FC = () => {
               value={currentCommand}
               onChange={(e) => setCurrentCommand(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={isTyping ? '' : 'Type a command...'}
-              disabled={isTyping}
+              placeholder={isTyping || isSubmitting ? '' : 'Type a command...'}
+              disabled={isTyping || isSubmitting}
               autoFocus
               aria-label="Terminal input"
             />

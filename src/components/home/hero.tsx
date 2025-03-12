@@ -53,6 +53,7 @@ const HeroContent = styled.div`
 const HeroText = styled.div`
   width: 100%;
   max-width: 600px;
+  margin-top: ${({ theme }) => theme.space[8]};
   margin-bottom: ${({ theme }) => theme.space[8]};
   animation: ${fadeInLeft} 0.8s ease-out;
   
@@ -64,6 +65,7 @@ const HeroText = styled.div`
 const HeroTitle = styled.h1`
   font-size: ${({ theme }) => theme.fontSizes['4xl']};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
+  margin-bottom: ${({ theme }) => theme.space[4]};
   margin-bottom: ${({ theme }) => theme.space[4]};
   line-height: 1.1;
   
