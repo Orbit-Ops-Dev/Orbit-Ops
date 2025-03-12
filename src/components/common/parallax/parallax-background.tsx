@@ -72,21 +72,21 @@ const ParallaxLayer = styled.div.attrs<{ transform: string; opacity?: number }>(
 `;
 
 const StarElement = styled.div.attrs<{
-  x: number;
-  y: number;
-  size: number;
-  opacity: number;
-  color: string;
-  twinkleDuration: number;
+  $x: number;
+  $y: number;
+  $size: number;
+  $opacity: number;
+  $color: string;
+  $twinkleDuration: number;
 }>(props => ({
   style: {
-    left: `${props.x}px`,
-    top: `${props.y}px`,
-    width: `${props.size}px`,
-    height: `${props.size}px`,
-    backgroundColor: props.color,
-    opacity: props.opacity,
-    animationDuration: `${props.twinkleDuration}s`
+    left: `${props.$x}px`,
+    top: `${props.$y}px`,
+    width: `${props.$size}px`,
+    height: `${props.$size}px`,
+    backgroundColor: props.$color,
+    opacity: props.$opacity,
+    animationDuration: `${props.$twinkleDuration}s`
   },
 }))`
   position: absolute;
@@ -285,12 +285,12 @@ const ParallaxBackground: React.FC<ParallaxBackgroundProps> = ({
           {stars[index]?.map(star => (
             <StarElement
               key={`star-${index}-${star.id}`}
-              x={star.x}
-              y={star.y}
-              size={star.size}
-              opacity={star.opacity}
-              color={star.color}
-              twinkleDuration={star.twinkleDuration}
+              $x={star.x}
+              $y={star.y}
+              $size={star.size}
+              $opacity={star.opacity}
+              $color={star.color}
+              $twinkleDuration={star.twinkleDuration}
             />
           ))}
         </ParallaxLayer>

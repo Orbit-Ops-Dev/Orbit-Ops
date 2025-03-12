@@ -1,6 +1,12 @@
 import { useInView } from "react-intersection-observer";
 import { styled } from "styled-components";
 import Button from "../common/button";
+import webDesignImage from "../../assets/images/web-design.jpg";
+import graphicDesignImage from "../../assets/images/graphic-design.jpg";
+import mobileAppImage from "../../assets/images/mobile-app-development.jpg";
+import automationImage from "../../assets/images/automation.jpg";
+import customerSupportImage from "../../assets/images/customer-support.jpg";
+
 
 // Service data
 const services = [
@@ -16,7 +22,7 @@ const services = [
       'SEO-friendly structure',
       'Cross-browser compatibility',
     ],
-    image: '/img/services/web-design.jpg',
+    image: webDesignImage,
   },
   {
     id: 'graphic-design',
@@ -30,7 +36,21 @@ const services = [
       'Print-ready designs',
       'Packaging and merchandise design',
     ],
-    image: '/img/services/graphic-design.jpg',
+    image: graphicDesignImage,
+  },
+  {
+    id: 'mobile-apps',
+    title: 'Mobile App Development',
+    description: 'Transform your ideas into powerful, intuitive mobile applications that engage users and extend your digital presence across platforms.',
+    features: [
+      'Native iOS and Android development',
+      'Cross-platform solutions (React Native)',
+      'UI/UX design for mobile',
+      'App store optimization and submission',
+      'Performance optimization',
+      'Ongoing maintenance and updates',
+    ],
+    image: mobileAppImage,
   },
   {
     id: 'automation',
@@ -44,7 +64,7 @@ const services = [
       'Data processing and reporting',
       'Scheduled task management',
     ],
-    image: '/img/services/automation.jpg',
+    image: automationImage,
   },
   {
     id: 'customer-support',
@@ -58,7 +78,7 @@ const services = [
       'Security monitoring',
       'Strategic growth consultation',
     ],
-    image: '/img/services/customer-support.jpg',
+    image: customerSupportImage,
   },
 ];
 
@@ -75,12 +95,15 @@ const ServiceImageContainer = styled.div<{ $visible: boolean }>`
   transition-delay: 0.2s;
 `;
 
-const ServiceImage = styled.div`
+const ServiceImage = styled.div<{ $backgroundImage: string }>`
   width: 100%;
   height: 0;
   padding-bottom: 75%;
   border-radius: ${({ theme }) => theme.radii.xl};
   background-color: ${({ theme }) => theme.colors.backgroundLight};
+  background-image: url(${props => props.$backgroundImage});
+  background-size: cover;
+  background-position: center;
   overflow: hidden;
   position: relative;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
@@ -211,71 +234,67 @@ const ServiceContainer = styled.div`
   padding: 0 ${({ theme }) => theme.space[4]};
 `;
 
-
-
-
-
 const ServicesInfo = () => {
-      // Service section refs
+  // Service section refs
   const serviceRefs = services.map(() => useInView({
     threshold: 0.2,
     triggerOnce: true,
   }));
 
-    return(
-        <>
-                  {/* Service Sections */}
-      {services.map((service, index) => {
-  const [ref, inView] = serviceRefs[index];
-
   return (
-    <ServiceSection key={service.id} id={service.id}>
-      <ServiceContainer>
-        {index % 2 === 0 ? (
-          <ServiceContent ref={ref}>
-            <ServiceText $visible={inView}>
-              <ServiceTitle>{service.title}</ServiceTitle>
-              <ServiceDescription>{service.description}</ServiceDescription>
-              <ServiceFeatures>
-                {service.features.map((feature, idx) => (
-                  <ServiceFeature key={idx}>{feature}</ServiceFeature>
-                ))}
-              </ServiceFeatures>
-              <ServiceAction>
-                <Button to="/contact" size="lg">Get Started</Button>
-              </ServiceAction>
-            </ServiceText>
-            
-            <ServiceImageContainer $visible={inView}>
-              <ServiceImage />
-            </ServiceImageContainer>
-          </ServiceContent>
-        ) : (
-          <ServiceContentReverse ref={ref}>
-            <ServiceText $visible={inView}>
-              <ServiceTitle>{service.title}</ServiceTitle>
-              <ServiceDescription>{service.description}</ServiceDescription>
-              <ServiceFeatures>
-                {service.features.map((feature, idx) => (
-                  <ServiceFeature key={idx}>{feature}</ServiceFeature>
-                ))}
-              </ServiceFeatures>
-              <ServiceAction>
-                <Button to="/contact" size="lg">Get Started</Button>
-              </ServiceAction>
-            </ServiceText>
-            
-            <ServiceImageContainer $visible={inView}>
-              <ServiceImage />
-            </ServiceImageContainer>
-          </ServiceContentReverse>
-        )}
-      </ServiceContainer>
-    </ServiceSection>
+    <>
+      {/* Service Sections */}
+      {services.map((service, index) => {
+        const [ref, inView] = serviceRefs[index];
+
+        return (
+          <ServiceSection key={service.id} id={service.id}>
+            <ServiceContainer>
+              {index % 2 === 0 ? (
+                <ServiceContent ref={ref}>
+                  <ServiceText $visible={inView}>
+                    <ServiceTitle>{service.title}</ServiceTitle>
+                    <ServiceDescription>{service.description}</ServiceDescription>
+                    <ServiceFeatures>
+                      {service.features.map((feature, idx) => (
+                        <ServiceFeature key={idx}>{feature}</ServiceFeature>
+                      ))}
+                    </ServiceFeatures>
+                    <ServiceAction>
+                      <Button to="/contact" size="lg">Get Started</Button>
+                    </ServiceAction>
+                  </ServiceText>
+                  
+                  <ServiceImageContainer $visible={inView}>
+                    <ServiceImage $backgroundImage={service.image} />
+                  </ServiceImageContainer>
+                </ServiceContent>
+              ) : (
+                <ServiceContentReverse ref={ref}>
+                  <ServiceText $visible={inView}>
+                    <ServiceTitle>{service.title}</ServiceTitle>
+                    <ServiceDescription>{service.description}</ServiceDescription>
+                    <ServiceFeatures>
+                      {service.features.map((feature, idx) => (
+                        <ServiceFeature key={idx}>{feature}</ServiceFeature>
+                      ))}
+                    </ServiceFeatures>
+                    <ServiceAction>
+                      <Button to="/contact" size="lg">Get Started</Button>
+                    </ServiceAction>
+                  </ServiceText>
+                  
+                  <ServiceImageContainer $visible={inView}>
+                    <ServiceImage $backgroundImage={service.image} />
+                  </ServiceImageContainer>
+                </ServiceContentReverse>
+              )}
+            </ServiceContainer>
+          </ServiceSection>
+        );
+      })}
+    </>
   );
-})}
-        </>
-    )
-}
+};
 
 export default ServicesInfo;

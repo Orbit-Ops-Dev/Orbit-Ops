@@ -20,6 +20,16 @@ interface ButtonBaseProps {
   className?: string;
 }
 
+// Define styled component props with $ prefix
+interface StyledButtonProps {
+  $variant?: ButtonVariant;
+  $size?: ButtonSize;
+  $fullWidth?: boolean;
+  $hasIcon?: boolean;
+  $iconPosition?: 'left' | 'right';
+  $isLoading?: boolean;
+}
+
 type ButtonProps = ButtonBaseProps & ButtonHTMLAttributes<HTMLButtonElement>;
 
 // Styles based on call-to-action.tsx
@@ -121,7 +131,7 @@ const buttonSizes = {
 };
 
 // Base button styles - updated to match call-to-action.tsx
-const StyledButton = styled.button<ButtonBaseProps>`
+const StyledButton = styled.button<StyledButtonProps>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -135,7 +145,7 @@ const StyledButton = styled.button<ButtonBaseProps>`
   text-decoration: none;
   transition: ${({ theme }) => theme.transitions.default};
   white-space: nowrap;
-  width: ${({ fullWidth }) => (fullWidth ? '100%' : 'auto')};
+  width: ${({ $fullWidth }) => ($fullWidth ? '100%' : 'auto')};
   position: relative;
   overflow: hidden;
   
@@ -161,14 +171,14 @@ const StyledButton = styled.button<ButtonBaseProps>`
   }
   
   /* Apply variant styles */
-  ${({ variant = 'primary' }) => buttonVariants[variant]}
+  ${({ $variant = 'primary' }) => buttonVariants[$variant]}
   
   /* Apply size styles */
-  ${({ size = 'md' }) => buttonSizes[size]}
+  ${({ $size = 'md' }) => buttonSizes[$size]}
   
   /* Icon position */
-  flex-direction: ${({ iconPosition }) =>
-    iconPosition === 'right' ? 'row-reverse' : 'row'};
+  flex-direction: ${({ $iconPosition }) =>
+    $iconPosition === 'right' ? 'row-reverse' : 'row'};
   
   /* Disabled styles */
   &:disabled {
@@ -177,8 +187,8 @@ const StyledButton = styled.button<ButtonBaseProps>`
   }
   
   /* Loading state */
-  ${({ isLoading }) =>
-    isLoading &&
+  ${({ $isLoading }) =>
+    $isLoading &&
     css`
       opacity: 0.8;
       cursor: wait;
@@ -229,13 +239,13 @@ const Button: React.FC<ButtonProps> = ({
       <StyledButton
         as={Link}
         to={to}
-        variant={variant}
-        size={size}
-        fullWidth={fullWidth}
-        hasIcon={hasIcon}
-        iconPosition={iconPosition}
+        $variant={variant}
+        $size={size}
+        $fullWidth={fullWidth}
+        $hasIcon={hasIcon}
+        $iconPosition={iconPosition}
         disabled={disabled || isLoading}
-        isLoading={isLoading}
+        $isLoading={isLoading}
         className={className}
         {...props}
       >
@@ -249,13 +259,13 @@ const Button: React.FC<ButtonProps> = ({
     return (
       <StyledAnchor
         href={href}
-        variant={variant}
-        size={size}
-        fullWidth={fullWidth}
-        hasIcon={hasIcon}
-        iconPosition={iconPosition}
+        $variant={variant}
+        $size={size}
+        $fullWidth={fullWidth}
+        $hasIcon={hasIcon}
+        $iconPosition={iconPosition}
         disabled={disabled || isLoading}
-        isLoading={isLoading}
+        $isLoading={isLoading}
         className={className}
         {...props}
       >
@@ -267,13 +277,13 @@ const Button: React.FC<ButtonProps> = ({
   // Otherwise render as button
   return (
     <StyledButton
-      variant={variant}
-      size={size}
-      fullWidth={fullWidth}
-      hasIcon={hasIcon}
-      iconPosition={iconPosition}
+      $variant={variant}
+      $size={size}
+      $fullWidth={fullWidth}
+      $hasIcon={hasIcon}
+      $iconPosition={iconPosition}
       disabled={disabled || isLoading}
-      isLoading={isLoading}
+      $isLoading={isLoading}
       as={as}
       className={className}
       {...props}

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import styled from 'styled-components';
+import { useLocation } from 'react-router-dom';
 import { generateSEO, getPageSEO } from '../utils/seo';
 import Process from '../components/services/process';
 import ServicesHeroComponent from '../components/services/hero';
@@ -17,12 +18,25 @@ const ServicesPage = styled.div`
 // Page component
 const Services: React.FC = () => {
   const seo = generateSEO(getPageSEO('services'));
+  const location = useLocation();
   
-  
-  // Scroll to top on page load
+  // Handle both page load scrolling and hash navigation
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    // If there's a hash in the URL, scroll to that section
+    if (location.hash) {
+      // Get the element ID from the hash (remove the # character)
+      const id = location.hash.substring(1);
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 300); // Give time for the page to fully render
+    } else {
+      // If no hash, scroll to top on page load
+      window.scrollTo(0, 0);
+    }
+  }, [location.hash]);
   
   return (
     <ServicesPage>
@@ -37,8 +51,8 @@ const Services: React.FC = () => {
         <link rel="canonical" href={seo.canonicalUrl} />
       </Helmet>
       
-    <ServicesHeroComponent />
-    <ServicesInfo />
+      <ServicesHeroComponent />
+      <ServicesInfo />
       <Process />
     </ServicesPage>
   );

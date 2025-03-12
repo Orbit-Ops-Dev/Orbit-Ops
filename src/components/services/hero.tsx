@@ -4,7 +4,6 @@ import { fadeInUp } from "../../styles/animation";
 const HeroSection = styled.section`
   position: relative;
   padding: ${({ theme }) => theme.space[20]} 0 ${({ theme }) => theme.space[12]};
-  background-color: ${({ theme }) => theme.colors.background};
   overflow: hidden;
   
   &::before {

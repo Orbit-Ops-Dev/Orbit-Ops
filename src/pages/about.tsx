@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { generateSEO, getPageSEO } from '../utils/seo';
 import Values from '../components/about/values';
 import TeamSectionComponent from '../components/about/team-section';
+import AboutHeroSection from '../components/about/hero';
 
 // Styled components
 const AboutPage = styled.div`
@@ -34,7 +35,7 @@ const About: React.FC = () => {
         <link rel="canonical" href={seo.canonicalUrl} />
       </Helmet>
       
-      
+      <AboutHeroSection />
       <Values />
       <TeamSectionComponent />
     </AboutPage>

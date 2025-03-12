@@ -72,7 +72,7 @@ const ReviewsContainer = styled.div`
   }
 `;
 
-const ReviewCard = styled.div<{ active?: boolean }>`
+const ReviewCard = styled.div<{ $active?: boolean }>`
   background: linear-gradient(
     135deg, 
     ${props => props.theme.colors.backgroundLight} 0%,
@@ -101,7 +101,7 @@ const ReviewCard = styled.div<{ active?: boolean }>`
     box-shadow: ${props => props.theme.shadows.lg};
   }
   
-  ${props => props.active && `
+  ${props => props.$active && `
     border: 1px solid ${props.theme.colors.primary};
     box-shadow: 0 0 15px rgba(110, 68, 255, 0.2);
   `}
@@ -149,9 +149,9 @@ const RatingContainer = styled.div`
   margin: ${props => props.theme.space[3]} 0;
 `;
 
-const StarIcon = styled(Star)<{ filled?: boolean }>`
-  color: ${props => props.filled ? props.theme.colors.accent3 : props.theme.colors.textDark};
-  fill: ${props => props.filled ? props.theme.colors.accent3 : 'transparent'};
+const StarIcon = styled(Star)<{ $filled?: boolean }>`
+  color: ${props => props.$filled ? props.theme.colors.accent3 : props.theme.colors.textDark};
+  fill: ${props => props.$filled ? props.theme.colors.accent3 : 'transparent'};
   margin-right: 2px;
   width: 18px;
   height: 18px;
@@ -179,12 +179,12 @@ const Controls = styled.div`
   margin-top: ${props => props.theme.space[8]};
 `;
 
-const PageIndicator = styled.button<{ active?: boolean }>`
+const PageIndicator = styled.button<{ $active?: boolean }>`
   width: 12px;
   height: 12px;
   border-radius: ${props => props.theme.radii.full};
   margin: 0 ${props => props.theme.space[1]};
-  background-color: ${props => props.active 
+  background-color: ${props => props.$active 
     ? props.theme.colors.secondary 
     : props.theme.colors.backgroundLight};
   border: none;
@@ -192,7 +192,7 @@ const PageIndicator = styled.button<{ active?: boolean }>`
   transition: ${props => props.theme.transitions.default};
   
   &:hover {
-    background-color: ${props => props.active 
+    background-color: ${props => props.$active 
       ? props.theme.colors.secondary 
       : props.theme.colors.secondaryDark};
   }
@@ -249,7 +249,7 @@ const Reviews: React.FC = () => {
     return Array(5).fill(0).map((_, index) => (
       <StarIcon 
         key={index} 
-        filled={index < rating} 
+        $filled={index < rating} 
         size={16}
       />
     ));
@@ -274,7 +274,7 @@ const Reviews: React.FC = () => {
                 <QuoteIcon>"</QuoteIcon>
                 <ReviewHeader>
                     <AvatarContainer>
-                      <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="none"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="#4285F4" d="M14.9 8.161c0-.476-.039-.954-.121-1.422h-6.64v2.695h3.802a3.24 3.24 0 01-1.407 2.127v1.75h2.269c1.332-1.22 2.097-3.02 2.097-5.15z"></path><path fill="#34A853" d="M8.14 15c1.898 0 3.499-.62 4.665-1.69l-2.268-1.749c-.631.427-1.446.669-2.395.669-1.836 0-3.393-1.232-3.952-2.888H1.85v1.803A7.044 7.044 0 008.14 15z"></path><path fill="#FBBC04" d="M4.187 9.342a4.17 4.17 0 010-2.68V4.859H1.849a6.97 6.97 0 000 6.286l2.338-1.803z"></path><path fill="#EA4335" d="M8.14 3.77a3.837 3.837 0 012.7 1.05l2.01-1.999a6.786 6.786 0 00-4.71-1.82 7.042 7.042 0 00-6.29 3.858L4.186 6.66c.556-1.658 2.116-2.89 3.952-2.89z"></path></g></svg>
+                      <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="none"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="#4285F4" d="M14.9 8.161c0-.476-.039-.954-.121-1.422h-6.64v2.695h3.802a3.24 3.24 0 01-1.407 2.127v1.75h2.269c1.332-1.22 2.097-3.02 2.097-5.15z"></path><path fill="#34A853" d="M8.14 15c1.898 0 3.499-.62 4.665-1.69l-2.268-1.749c-.631.427-1.446.669-2.395.669-1.836 0-3.393-1.232-3.952-2.888H1.85v1.803A7.044 7.044 0 008.14 15z"></path><path fill="#FBBC04" d="M4.187 9.342a4.17 4.17 0 010-2.68V4.859H1.849a6.97 6.97 0 000 6.286l2.338-1.803z"></path><path fill="#EA4335" d="M8.14 3.77a3.837 3.837 0 012.7 1.05l2.01-1.999a6.786 6.786 0 00-4.71-1.82 7.042 7.042 0 00-6.29 3.858L4.186 6.66c.556-1.658 2.116-2.89 3.952-2.89z"></path></g></svg>
                     </AvatarContainer>
                   <ReviewerInfo>
                     <ReviewerName>{review.name}</ReviewerName>
@@ -296,7 +296,7 @@ const Reviews: React.FC = () => {
               {Array(totalPages).fill(0).map((_, index) => (
                 <PageIndicator 
                   key={index} 
-                  active={index === currentPage}
+                  $active={index === currentPage}
                   onClick={() => setCurrentPage(index)}
                   aria-label={`Go to page ${index + 1}`}
                 />

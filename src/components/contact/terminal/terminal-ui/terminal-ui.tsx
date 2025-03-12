@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect, KeyboardEvent, FormEvent } from 'react';
 import styled from 'styled-components';
-import emailjs from '@emailjs/browser';
 
 // Types
 interface HistoryItem {
   type: 'command' | 'response';
   content: string;
-  id: number;
+  id: string; // Changed to string for better uniqueness
 }
 
 interface FormData {
@@ -165,13 +164,17 @@ const TerminalInput = styled.input`
   }
 `;
 
+// Generate a unique ID for history items
+const generateUniqueId = () => {
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+};
+
 // Terminal Component
 const Terminal: React.FC = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [currentCommand, setCurrentCommand] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [counter, setCounter] = useState(0);
   const [formData, setFormData] = useState<FormData>({
     from_name: '',
     reply_to: '',
@@ -219,8 +222,7 @@ const Terminal: React.FC = () => {
 
   // Add a new entry to the terminal history
   const addToHistory = (type: 'command' | 'response', content: string) => {
-    const id = counter;
-    setCounter(prev => prev + 1);
+    const id = generateUniqueId();
     
     setHistory(prev => [
       ...prev,
@@ -256,7 +258,6 @@ const Terminal: React.FC = () => {
       await addResponse('Submitting your message...');
       
       // Create a form element to use the traditional send method
-      const form = document.createElement('form');
       const formDataObj = {
         service_id: 'service_iw848xp',
         template_id: 'template_v3hsrmb',
@@ -509,7 +510,9 @@ const Terminal: React.FC = () => {
         ))}
         
         {formStep >= 0 && !isTyping && !isSubmitting && (
-          <ResponseLine>{currentPrompt}</ResponseLine>
+          <ResponseLine key={`current-prompt-${formStep}`}>
+            {currentPrompt}
+          </ResponseLine>
         )}
         
         <form onSubmit={handleSubmit}>

@@ -338,7 +338,6 @@ const Hero: React.FC<HeroProps> = ({
   ];
   
   return (
-    <ParallaxBackground layers={parallaxLayers}>
       <HeroContainer>
         {/* Half-orbit background decoration */}
         <HalfOrbitContainer>
@@ -419,7 +418,6 @@ const Hero: React.FC<HeroProps> = ({
           </HeroImageContainer>
         </HeroContent>
       </HeroContainer>
-    </ParallaxBackground>
   );
 };
 
